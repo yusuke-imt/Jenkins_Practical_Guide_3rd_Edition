@@ -5,9 +5,9 @@ pipeline {
 //        jdk "JDK8"
     }
     stages {
-        stage('Hello World') {
+        stage('HelloWorld') {
             steps {
-                library 'my-shared-library/vars'
+                library 'my-shared-library'
                 helloWorld 'Yusuke'
             }
         }
