@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Hello World') {
             steps {
-                library 'my-shared-library'
+                library 'my-shared-library/vars'
                 helloWorld 'Yusuke'
             }
         }
