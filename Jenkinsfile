@@ -1,43 +1,36 @@
 pipeline {
     agent any
+    tools {
+        maven "Maven 3.6.3"
+//        jdk "JDK8"
+    }
     stages {
-        // Mark the code checkout 'stage'....
-        stage('Checkout') {
+        stage('チェックアウト') {
             steps {
-                // Get some code from a GitHub repository
-                git url: 'https://github.com/wdpressplus/Jenkins_Practical_Guide_3rd_Edition.git'
+                git url: 'https://github.com/yusuke-imt/Jenkins_Practical_Guide_3rd_Edition.git'
             }
         }
-
-        // Mark the code build 'stage'....
-        stage('Build, Unittest and Static Analysis') {
+       stage('Maven build') {
             steps {
-                script {
-                    // Global Tool Configuration で Maven 3.5.0 を設定していること。
-                    def mvnHome = tool 'Maven 3.5.0'
-                    if (env.OS == 'Windows_NT') {
-                        bat "${mvnHome}/bin/mvn clean package"
-                    } else {
-                        sh "${mvnHome}/bin/mvn clean package"
-                    }
-                }
+                sh "mvn clean package"
             }
         }
-
-        // Mark the Report of Unittest and Coverage 'stage'....
-        stage('Report of Unittest and Coverage') {
+                stage('test results aggregate') {
             steps {
-                junit '**/target/surefire-reports/TEST-*.xml'
-                step([$class: 'JacocoPublisher'])
+                junit('target/surefire-reports/*.xml')
+                step([$class: 'JacocoPublisher', execPattern: 'target/jacoco.exec'])
             }
         }
-    
-        // Mark the Static Analysis 'stage'....
-        stage('Report of Static Analysis') {
+        stage('code analyse results aggregate') {
             steps {
-                step([$class: 'CheckStylePublisher', canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '**/target/checkstyle-result.xml', unHealthy: ''])
-                step([$class: 'FindBugsPublisher', canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: '**/target/findbugsXml.xml', unHealthy: ''])
+                checkstyle(pattern: 'target/checkstyle-result.xml')
+                findbugs(pattern:'target/findbugsXml.xml')
             }
         }
-   }
+        stage('sample job call') {
+            steps {
+                build job: 'SampleJob', parameters: [string(name:'MESSAGE', value: params.PERSON)]
+            }
+        }
+    }
 }
