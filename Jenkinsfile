@@ -5,6 +5,12 @@ pipeline {
 //        jdk "JDK8"
     }
     stages {
+        stage('Hello World') {
+            steps {
+                library 'my-shared-library'
+                helloWorld 'Yusuke'
+            }
+        }
         stage('チェックアウト') {
             steps {
                 git url: 'https://github.com/yusuke-imt/Jenkins_Practical_Guide_3rd_Edition.git'
